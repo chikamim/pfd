@@ -7,11 +7,21 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AppleScriptObjC/AppleScriptObjC.h>
 
 int main(int argc, const char * argv[]) {
-    @autoreleasepool {
-        // insert code here...
-        NSLog(@"Hello, World!");
-    }
+        NSAppleScript  *scriptObject = [[NSAppleScript alloc] initWithSource:@""
+                                        "try\n"
+                                        "tell application \"Finder\" to set current_directory to quoted form of POSIX path of (target of window 1 as alias)\n"
+                                        "end try\n"
+                                        "return current_directory"
+                                        ];
+
+        NSDictionary           *errorDict;
+        NSAppleEventDescriptor *returnDescriptor = NULL;
+        returnDescriptor = [scriptObject executeAndReturnError:&errorDict];
+
+        NSString *trimmedString = [returnDescriptor.stringValue stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"'"]];
+        fprintf(stdout, "%s\n", [trimmedString UTF8String]);
     return 0;
 }
